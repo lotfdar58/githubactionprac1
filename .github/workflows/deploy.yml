@@ -1,0 +1,25 @@
+name: Deploy to LocalStack
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t my-app .
+
+      - name: Push to local registry
+        run: |
+          docker tag my-app localhost:5000/my-app:latest
+          docker push localhost:5000/my-app:latest
+
+      - name: Run Terraform
+        run: |
+          cd infra
+          terraform init
+          terraform apply -auto-approve
